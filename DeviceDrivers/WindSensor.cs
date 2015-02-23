@@ -6,7 +6,7 @@ using Microsoft.SPOT.Hardware;
 namespace WindInstrumentToNMEA
 {
     /// <summary>
-    /// This is a sensor driver for the Davis 4610 anemometer.  It was implemented using the helpful documentation
+    /// This is a sensor driver for the Davis 6410 anemometer.  It was implemented using the helpful documentation
     /// at http://www.lexingtonwx.com/anemometer/ and http://www.emesystems.com/OL2wind.htm.
     /// 
     /// The hardware has the following pinout on an RJ14 plug:
