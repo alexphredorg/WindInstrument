@@ -1,9 +1,11 @@
-﻿#undef CONFIG
-#if CONFIG
-// CONFIG is untested code that will allow you to change the wind direction correction
+﻿// CONFIG is untested code that will allow you to change the wind direction correction
 // factor from the display.  It would require a memory card, and the Netduino 2 that I'm
 // using doesn't have one.
-#endif
+#undef CONFIG
+
+// DISPLAY is used to show debug results to a Adafruit OLED using the driver in DeviceDrivers/AdaOLED.cs
+// It isn't necessary, you can also debug by watching the Output tab when running under the debugger.
+#define DISPLAY
 
 
 using System;
@@ -18,20 +20,20 @@ using SecretLabs.NETMF.Hardware;
 using SecretLabs.NETMF.Hardware.Netduino;
 
 // Netduino wiring for the Sensor Computer.  This uses a non-Plus Netduino:
-//  D0 - RX1 (unused, used to be wired to e7d) NMEA from GPS
-//  D1 - TX1 (wired to e7d) NMEA to GPS
+//  D0 - RX1 
+//  D1 - TX1 NMEA to GPS
 //  D2 - RX2 (unused)
-//  D3 - TX2 (unused, used to be wired to display head) NMEA to display head
+//  D3 - TX2 (unused) 
 //  D4 -
-//  D5 - Button input
+//  D5 - Button input (optional, CONFIG)
 //  D6 - Wind Sensor Speed 
 //  D7 - Wind Sensor Direction Pulse
-//  D8 - Display SA0
-//  D9 - Display Rst
-// D10 - Display CS
-// D11 - Display Data
+//  D8 - Display SA0 (optional, DISPLAY)
+//  D9 - Display Rst (optional, DISPLAY)  
+// D10 - Display CS (optional, DISPLAY)
+// D11 - Display Data (optional, DISPLAY) 
 // D12 -
-// D13 - Display Clk
+// D13 - Display Clk (optional, DISPLAY)
 //  A0 - Wind Sensor Direction
 //  A1 -
 //  A2 -
@@ -45,6 +47,7 @@ namespace WindInstrumentToNMEA
     {
         public void Go()
         {
+#if DISPLAY
             // the oled is used for debugging.  This could be removed if more pins were necessary for
             // sensors or to save on material costs
             this.oled = new Adafruit1306OledDriver(
@@ -53,16 +56,19 @@ namespace WindInstrumentToNMEA
                 chipSelect: Pins.GPIO_PIN_D10,
                 spiModule:SPI.SPI_module.SPI1,
                 speedKHz:10000);
+#endif
 
 #if CONFIG
             m_inputButton = new AutoRepeatInputPort(Pins.GPIO_PIN_D5, Port.ResistorMode.PullUp, true);
             m_inputButton.StateChanged += new AutoRepeatEventHandler(m_inputButton_StateChanged);
 #endif
 
+#if DISPLAY
             this.oled.Initialize();
             this.oled.ClearScreen();
             this.oled.DrawString(0, 0, "sensorProgram");
-            
+#endif
+
             // initialize the Wind Sensor
             m_windSensor = new WindSensor(
                 Pins.GPIO_PIN_D6,
@@ -79,8 +85,9 @@ namespace WindInstrumentToNMEA
             this.serialPort = new SerialPort("COM1", 38400, Parity.None, 8, StopBits.One);
             this.serialPort.Open();
             this.nmeaOutputPort = new NmeaOutputPort(this.serialPort);
-
+#if DISPLAY
             this.oled.ClearScreen();
+#endif
             while (true)
             {
                 Thread.Sleep(OledDisplayTime);
@@ -148,9 +155,12 @@ namespace WindInstrumentToNMEA
             // update the OLED
             m_lastRelativeHeading = relativeHeading;
             m_lastKnots = knots;
+#if DISPLAY
             this.UpdateOLED();
+#endif
         }
 
+#if DISPLAY
         private void UpdateOLED()
         {
             this.oled.DrawString(0, 0, Program.Version);
@@ -165,8 +175,12 @@ namespace WindInstrumentToNMEA
             }
 #endif
         }
+#endif
 
+#if DISPLAY
         private Adafruit1306OledDriver oled;
+#endif
+      
         private SerialPort serialPort;
         private NmeaOutputPort nmeaOutputPort;
 
