@@ -96,7 +96,7 @@ namespace WindInstrumentToNMEA
                     // last (windSpeedSamples) pulses.  The period is then converted to hz, and finally
                     // that is converted into knots.
                     long timeDelta = newestPulseTime - oldestPulseTime;
-                    double period = ((double)timeDelta / windSpeedSamples) / TimeSpan.TicksPerSecond;
+                    double period = ((double)timeDelta / (windSpeedSamples - 1)) / TimeSpan.TicksPerSecond;
                     double hz = 1 / period;
                     knots = hz * hz2knots;
                 }

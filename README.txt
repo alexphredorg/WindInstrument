@@ -1,5 +1,5 @@
 ﻿This is a program for the Netduino (any version) that interfaces it to 
-a Davis 6410 anenometer and outputs data using the WMV verb to a NMEA 
+a Davis 6410 anenometer and outputs data using the MWV verb to a NMEA 
 0183 network.  I use it for a masthead wind instrument on my sailboat.  It
 is interfaced with Raymarine equipment through a Raymarine e7d chart 
 plotter.
