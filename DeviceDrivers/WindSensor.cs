@@ -66,17 +66,25 @@ namespace WindInstrumentToNMEA
             // So once per second report our average wind direction and wind speed.
             if (recentDirectionIndex == 0)
             {
-                // average recent direction samples.
-                direction = 0;
+                // average recent direction samples.  They are angles, so average them as unit vectors: a plain
+                // average of 0.99 and 0.01, either side of the bow, would come out as 0.5, dead astern.
+                double sumSin = 0;
+                double sumCos = 0;
                 for (int i = 0; i < windDirectionSamples; i++)
                 {
-                    direction += recentDirection[i];
+                    double radians = recentDirection[i] * 2 * System.Math.PI;
+                    sumSin += System.Math.Sin(radians);
+                    sumCos += System.Math.Cos(radians);
                 }
-                direction /= windDirectionSamples;
+                direction = System.Math.Atan2(sumSin, sumCos) / (2 * System.Math.PI);
+                if (direction < 0)
+                {
+                    direction += 1;
+                }
 
                 // direction is a value from 0 to 1.  0.5 points to the back of the boat, 0 and 1 both point to the front of the boat.  
-                // Convert that to degrees * 10.
-                int degrees = (int)(direction * 3600);
+                // Convert that to degrees * 10, rounding because the trig can land just below an exact reading.
+                int degrees = (int)(direction * 3600 + 0.5);
                 degrees = (degrees + degreesCorrection) % 3600;
 
                 // get the oldest and newest pulse times from the wind speed indicator.
